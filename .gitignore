@@ -1,3 +1,5 @@
 node_modules/
 eval/.cache/
 *.accessible.html
+dist/
+prompt.md

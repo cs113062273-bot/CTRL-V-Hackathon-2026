@@ -1,0 +1,84 @@
+1
+00:00:00,000 --> 00:00:07,000
+94.8% of the top million websites fail accessibility.
+This clinic page is one of them.
+
+2
+00:00:07,000 --> 00:00:15,000
+To a blind patient, this photo is "IMG_2041.jpg" and every form field
+is just "edit text". They can't book a doctor.
+
+3
+00:00:15,000 --> 00:00:22,000
+Checkers list problems. Overlays hide them. Nobody fixes the code.
+So we built PasteProof.
+
+4
+00:00:22,000 --> 00:00:32,000
+Ctrl+V. That's the whole workflow.
+52 accessibility failures — gone in under two seconds.
+
+5
+00:00:32,000 --> 00:00:40,000
+49 fixes to the actual source code —
+and every single one re-audited and verified.
+
+6
+00:00:40,000 --> 00:00:52,000
+The photo gets alt text from Florence-2, a vision model running
+inside your browser. No upload. No API key. Free.
+
+7
+00:00:52,000 --> 00:01:02,000
+It connects the labels already on screen, makes mouse-only buttons
+work with a keyboard, and marks required fields.
+
+8
+00:01:02,000 --> 00:01:12,000
+You stay in control: edit any guess, reject any fix, re-run —
+and it's verified again.
+
+9
+00:01:12,000 --> 00:01:27,000
+This is what a screen reader says. Before: 12 controls and images with no name.
+After: zero. Every field, every link, every image speaks.
+
+10
+00:01:27,000 --> 00:01:37,000
+And the page looks exactly the same. We measure it:
+every element keeps its position and size.
+
+11
+00:01:37,000 --> 00:01:44,000
+You get a clean diff of real HTML and CSS — not a runtime script.
+
+12
+00:01:44,000 --> 00:02:02,000
+Real websites too. Hacker News: 280 failures. PasteProof follows the colors
+into the external stylesheet and fixes 241 low-contrast texts
+with just six CSS rules — plus a patch for news.css.
+
+13
+00:02:02,000 --> 00:02:16,000
+Pages behind a login — benefit portals, school accounts — one click on the
+bookmarklet sends the live page to PasteProof. Nothing leaves your machine.
+
+14
+00:02:16,000 --> 00:02:26,000
+For developers, the same engine runs in CI:
+it blocks any deploy that ships new barriers.
+
+15
+00:02:26,000 --> 00:02:44,000
+We tested it on 21 pages, including IRS, NYC.gov, HealthCare.gov and 211.
+1,604 issues down to 15. 781 of 781 fixes verified.
+Zero new problems. 100% of text and layout preserved.
+
+16
+00:02:44,000 --> 00:02:50,000
+On W3C's own broken demo site, we leave fewer issues than
+W3C's expert hand-fixed version: 18 versus 79.
+
+17
+00:02:50,000 --> 00:02:55,000
+PasteProof. Ctrl+V — and the web opens up for everyone.

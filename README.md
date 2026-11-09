@@ -2,6 +2,8 @@
 
 **Paste inaccessible HTML. Get accessible code back. Every fix is re-checked.**
 
+**Live demo:** https://cs113062273-bot.github.io/pasteproof/ (runs fully in your browser; URL fetching needs the local app). Submission materials: [`submission/`](submission/).
+
 PasteProof audits a web page or component with [axe-core](https://github.com/dequelabs/axe-core) (WCAG 2.2 A/AA plus best practices) and its own extra checks. It repairs the **source HTML and CSS**, then re-renders the result and audits it again. Each change is labelled *verified* or *still failing*. It also measures that the page layout and text did not change. Fixes it is unsure about wait in a review queue, where you can accept, edit, or reject each one.
 
 It is not an overlay. Nothing is injected into your site at runtime. You get a normal HTML file, a diff, a CSS patch for your stylesheet files, and a report.
@@ -46,7 +48,7 @@ Optional: tick **On-device AI alt text** to describe images that have no other c
 | Area | Repair | Decided by |
 |---|---|---|
 | Contrast (1.4.3) | Smallest same-hue change that reaches the ratio. It edits the `<style>` rule that sets the colour, following inheritance up the tree; for external CSS it adds one equally specific override and writes a patch for the file. Each choice is verified in the CSSOM, with inline styles only as a last resort. | Deterministic |
-| Images (1.1.1) | Decorative detection (spacers, layout slices, repeated bullets, furniture file names), alt text that repeats nearby text removed, linked images named by their destination, captions, titles, on-device AI captions, meaningful file names. Otherwise it asks you. | Heuristic or AI, flagged for review |
+| Images (1.1.1) | Text read from inside SVG files (logos), decorative detection (spacers, layout slices, repeated bullets, furniture file names), alt text that repeats nearby text removed, linked images named by their destination, captions, titles, on-device AI captions, meaningful file names. Otherwise it asks you. | Heuristic or AI, flagged for review |
 | Form labels (1.3.1, 4.1.2, 3.3.2) | Connects the visible neighbouring label (sibling, table cell, wrapping text) via `aria-labelledby`/`for`, replaces placeholder-only labels, and marks asterisk-only required fields. It never wraps text in new elements, because new elements can match your CSS. | Heuristic |
 | Names (4.1.2, 2.4.4, 2.5.3) | Icon classes (`fa-search` → "Search"), SVG titles, link destinations, logo links, click-handler names. It fixes names that don't contain the visible text and hides icons inside already-labelled controls. | Heuristic |
 | Keyboard (2.1.1) | `<div onclick>` → `role`, `tabindex`, Enter/Space handler (skipped for delegated containers that hold links) | Deterministic |
@@ -64,6 +66,8 @@ node cli.js https://example.org --fail-on serious   # exit 1 if serious/critical
 The CLI runs exactly the same engine as the UI in headless Chrome or Edge. Set `PASTEPROOF_BROWSER` if neither is in a standard location.
 
 ## Evaluate and test
+
+Static build for any free host (GitHub Pages, Cloudflare Pages): `npm run build:static` writes `dist/`.
 
 ```bash
 npm run eval   # 21 pages: 4 samples, 4 W3C "BAD" demo pages (vs W3C's expert fixes), 13 real public-service sites

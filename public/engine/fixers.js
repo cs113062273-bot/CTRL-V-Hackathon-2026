@@ -222,9 +222,24 @@ async function imageAlt(el, node, ctx) {
     }
   }
   const fileAlt = altFromFilename(src);
+  // SVG images carry real text (<title>, <text>): read it instead of guessing.
+  let svgText = null;
+  if (/\.svg(\?|#|$)/i.test(src) || /^data:image\/svg/i.test(src)) {
+    try {
+      const url = resolveUrl(src, ctx.baseUrl || undefined);
+      const res = url && await fetch(url);
+      if (res?.ok) {
+        const svg = new DOMParser().parseFromString(await res.text(), 'image/svg+xml');
+        const t = (svg.querySelector('title')?.textContent || [...svg.querySelectorAll('text')].map(x => x.textContent).join(' ')).replace(/\s+/g, ' ').trim();
+        if (t && t.length <= 80) svgText = t;
+      }
+    } catch { /* cross-origin or unreadable: fall through */ }
+  }
+  const isLogo = /\blogo\b/.test(tokens);
   if (host) {
     const dest = labelFromHref(host.getAttribute('href'));
     const logo = /\blogo\b/.test(tokens);
+    if (svgText) return { ...base, value: isLogo ? `${svgText} home` : svgText, method: 'rule', confidence: 'high', reason: 'Linked SVG: used the text inside the image file' };
     if (logo) {
       const site = ctx_site(ctx.doc);
       const v = site ? `${site} home` : (dest || 'Home');
@@ -233,11 +248,16 @@ async function imageAlt(el, node, ctx) {
     const icon = iconLabel(tokens);
     if (icon) return { ...base, value: icon, method: 'heuristic', confidence: 'medium', reason: 'Icon is the only content of a link; alt text names the action' };
     const pathDest = dest && !/\./.test(dest) ? dest : null;
+    let homeLink = false;
+    try { const u = new URL(host.getAttribute('href'), ctx.baseUrl || 'https://relative.invalid/'); homeLink = /^\/?(index\.\w+)?$/.test(u.pathname) && (!ctx.baseUrl || u.hostname === new URL(ctx.baseUrl).hostname || u.hostname === 'relative.invalid'); } catch { /* */ }
+    const site = ctx_site(ctx.doc);
+    if (homeLink && site) return { ...base, value: `${site} home`, method: 'heuristic', confidence: 'medium', reason: 'Image-only link to the home page: named after the site' };
     if (pathDest || fileAlt || dest) return { ...base, value: pathDest || fileAlt || dest, method: 'heuristic', confidence: 'low', reason: 'Only content of a link; alt text must describe where it goes' };
   }
   if (caption && text(caption)) return { ...base, value: clip(text(caption), 120), method: 'rule', confidence: 'medium', reason: 'Matched the figure caption' };
   const title = el.getAttribute('title')?.trim();
   if (title) return { ...base, value: title, method: 'rule', confidence: 'medium', reason: 'Copied from the title tooltip' };
+  if (svgText) return { ...base, value: isLogo && !/logo/i.test(svgText) ? `${svgText} logo` : svgText, method: 'rule', confidence: 'high', reason: 'Used the text inside the SVG file' };
   if (ai) return { ...base, value: ai, method: 'ai', confidence: 'medium', reason: 'Described by the on-device vision model (Florence-2) — check it conveys the image\'s purpose' };
   if (fileAlt) return { ...base, value: fileAlt, method: 'heuristic', confidence: 'low', reason: `Derived from the file name "${clip(src.split('/').pop(), 40)}"` };
   return { ...base, value: '', requiresInput: true, method: 'rule', confidence: 'low', reason: 'No caption, title or meaningful file name. Describe the image, or confirm it is decorative' };
@@ -298,7 +318,8 @@ function externalRuleFix({ node, ctx, rule, owner, prop, hex, ratio, key, edits,
   probe.remove();
   if (!controls) return inline;
   const file = owner.getAttribute('data-pp-href') || owner.getAttribute('href');
-  const old = rule.style.getPropertyValue(prop);
+  const oldRaw = rule.style.getPropertyValue(prop);
+  const old = parseColor(oldRaw) ? toHex(parseColor(oldRaw)) : oldRaw;
   const affected = win.document.querySelectorAll(rule.selectorText).length;
   return {
     value: hex, editable: 'color', method: 'rule', confidence: 'high', group: key,
@@ -780,6 +801,9 @@ function vagueLink(el) {
   const mk = (value, why) => ({ value, editable: 'text', method: 'heuristic', confidence: 'medium', reason: `"${label}" is meaningless out of context (screen-reader link lists). ${why}`, apply: setAttr(el, 'aria-label') });
   const title = el.getAttribute('title')?.trim();
   if (title) return mk(`${bare}: ${title}`, 'Used its title tooltip');
+  const rel = (el.getAttribute('rel') || '').toLowerCase().split(/\s+/);
+  if (rel.includes('next')) return mk(`${bare}: next page`, 'The link is marked rel="next"');
+  if (rel.includes('prev')) return mk(`${bare}: previous page`, 'The link is marked rel="prev"');
   const after = [];
   for (let n = el.nextSibling; n && after.join(' ').length < 120; n = n.nextSibling) {
     if (n.nodeType === 1 && n.matches('a,button,br,div,p,li,table,ul,ol,h1,h2,h3,h4,h5,h6')) break;

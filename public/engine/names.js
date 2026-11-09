@@ -93,6 +93,7 @@ export function labelFromHref(href) {
   const h = String(href).trim();
   if (/^mailto:/i.test(h)) return 'Email ' + decodeURIComponent(h.slice(7).split('?')[0]);
   if (/^tel:/i.test(h)) return 'Call ' + h.slice(4);
+  if (/^\?/.test(h)) return null; // same page, different query: no destination name
   if (/^(#|javascript:)/i.test(h)) {
     const frag = h.startsWith('#') ? humanizeIdentifier(h.slice(1)) : null;
     return frag;

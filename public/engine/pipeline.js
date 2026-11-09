@@ -62,7 +62,7 @@ export async function run(source, opts = {}) {
   const adopt = root => { for (const e of [root, ...root.querySelectorAll('*')]) if (!e.hasAttribute('data-ppid')) e.setAttribute('data-ppid', String(++seq)); };
   adopt(doc.documentElement);
   const normalized = serialize(doc, fragment);
-  const auditOpts = { baseUrl, fragment, loadTimeout: opts.loadTimeout };
+  const auditOpts = { baseUrl, fragment, loadTimeout: opts.loadTimeout, cssProxy: opts.cssProxy || null };
   const warnings = [];
 
   onProgress('Rendering and auditing the original');

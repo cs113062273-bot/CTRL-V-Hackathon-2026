@@ -6,7 +6,9 @@ const AXE_TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa', 'best-
 const IMPACT_RANK = { critical: 4, serious: 3, moderate: 2, minor: 1 };
 
 /** Copy of the document that is safe to render: no user scripts, handlers, or javascript: URLs. */
-export function buildRenderHtml(doc, { baseUrl, fragment, withAxe }) {
+const VENDOR = new URL('../vendor/', import.meta.url).href;
+
+export function buildRenderHtml(doc, { baseUrl, fragment, withAxe, cssProxy }) {
   const clone = doc.cloneNode(true);
   clone.querySelectorAll('script, base, meta[http-equiv]').forEach(n => n.remove());
   for (const el of clone.querySelectorAll('*')) {
@@ -17,19 +19,18 @@ export function buildRenderHtml(doc, { baseUrl, fragment, withAxe }) {
     }
   }
   clone.querySelectorAll('iframe, frame').forEach(f => { f.removeAttribute('src'); f.removeAttribute('srcdoc'); });
-  if (withAxe) {
+  if (withAxe && cssProxy) {
     for (const link of clone.querySelectorAll('link[rel~=stylesheet][href]')) {
       let abs;
       try { abs = new URL(link.getAttribute('href'), baseUrl || location.href).href; } catch { continue; }
       link.setAttribute('data-pp-href', abs);
-      if (/^https?:/.test(abs) && new URL(abs).origin !== location.origin) link.setAttribute('href', `${location.origin}/api/css?url=${encodeURIComponent(abs)}`);
+      if (/^https?:/.test(abs) && new URL(abs).origin !== location.origin) link.setAttribute('href', new URL(`api/css?url=${encodeURIComponent(abs)}`, cssProxy).href);
     }
   }
   const head = clone.head || clone.documentElement.insertBefore(clone.createElement('head'), clone.body);
-  const origin = location.origin;
   const csp = clone.createElement('meta');
   csp.setAttribute('http-equiv', 'Content-Security-Policy');
-  csp.setAttribute('content', `script-src ${origin}/vendor/; object-src 'none'; form-action 'none'; frame-src 'none'`);
+  csp.setAttribute('content', `script-src ${VENDOR}; object-src 'none'; form-action 'none'; frame-src 'none'`);
   head.prepend(csp);
   if (baseUrl) {
     const base = clone.createElement('base');
@@ -38,7 +39,7 @@ export function buildRenderHtml(doc, { baseUrl, fragment, withAxe }) {
   }
   if (withAxe) {
     const s = clone.createElement('script');
-    s.src = `${origin}/vendor/axe.min.js`;
+    s.src = VENDOR + 'axe.min.js';
     (clone.body || clone.documentElement).append(s);
   }
   if (fragment) {

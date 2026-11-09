@@ -1,6 +1,6 @@
 // Main-thread client for the on-device captioning worker. Results are cached per image URL.
 
-export function createCaptioner({ onStatus = () => {} } = {}) {
+export function createCaptioner({ onStatus = () => {}, proxy = null } = {}) {
   const worker = new Worker(new URL('./caption-worker.js', import.meta.url), { type: 'module' });
   const pending = new Map();
   const cache = new Map();
@@ -18,7 +18,7 @@ export function createCaptioner({ onStatus = () => {} } = {}) {
   };
   return function caption(url) {
     if (cache.has(url)) return cache.get(url);
-    const fetchUrl = /^https?:/i.test(url) && new URL(url).origin !== location.origin ? new URL('/api/image?url=' + encodeURIComponent(url), location.href).href : url;
+    const fetchUrl = proxy && /^https?:/i.test(url) && new URL(url).origin !== location.origin ? new URL('api/image?url=' + encodeURIComponent(url), proxy).href : url;
     const promise = new Promise((resolve, reject) => {
       const id = ++seq;
       pending.set(id, { resolve, reject });

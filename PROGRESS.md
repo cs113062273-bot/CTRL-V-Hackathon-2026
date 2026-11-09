@@ -22,6 +22,11 @@
 - New: layout-preservation metric; external stylesheet reading (guarded CSS proxy) with override rules and a CSS patch; contrast rules followed through inheritance; JavaScript-rendered URL fetch with per-request private-network blocking; bookmarklet for logged-in pages; opt-in suggestions; evidence-based confidence calibration (review share 73% → 27%); fixers for redundant alt, decorative icons, label/name mismatch, and nested or duplicate landmarks.
 - Tests 4/4, including a UI self-audit. Internal score 87 → 93.
 
+**Iteration 3 (submission)**
+- Static build (`npm run build:static`) for GitHub Pages: the engine runs in the browser and detects that no server is present.
+- SVG logos named from the text inside the file; query-only and `rel=next` links named correctly; headline counts separate optional suggestions; readable diffs for minified pages; CSS patch shows authored hex values.
+- Submission package in `submission/`: Devpost text, demo script with timings, `.srt` subtitles, and 9 screenshots.
+
 **Open issues** (see [EVALUATION.md](EVALUATION.md))
 - Review burden from medium-confidence heuristics.
 - Framework source is not rewritten; one page at a time.

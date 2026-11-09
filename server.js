@@ -129,6 +129,7 @@ export function createServer() {
     const url = new URL(req.url, 'http://localhost');
     try {
       if (req.method !== 'GET' && req.method !== 'HEAD') return send(res, 405, JSON.stringify({ error: 'Method not allowed' }));
+      if (url.pathname === '/api/health') return send(res, 200, JSON.stringify({ ok: true, renderer: !!findBrowser({ optional: true }) }));
       if (url.pathname === '/api/fetch') {
         const target = url.searchParams.get('url');
         if (!target) throw httpError(400, 'Missing url parameter.');

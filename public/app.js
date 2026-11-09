@@ -15,6 +15,7 @@ const state = {
   reviewed: new Set(),
   result: null,
   captioner: null,
+  server: null, // base URL of the local PasteProof server, or null on the static site
   running: false,
 };
 
@@ -98,7 +99,8 @@ $('#url-form').addEventListener('submit', async e => {
   const url = $('#url-input').value.trim();
   status(`Fetching ${url}…`, 'busy');
   try {
-    const res = await fetch('/api/fetch?url=' + encodeURIComponent(url) + ($('#render-js').checked ? '' : '&render=0'));
+    if (!state.server) throw new Error('fetching URLs needs the local app (npm start). On this site, use the "Send to PasteProof" bookmarklet below or paste the HTML');
+    const res = await fetch(new URL('api/fetch', state.server) + '?url=' + encodeURIComponent(url) + ($('#render-js').checked ? '' : '&render=0'));
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
     let name = 'page.html';
@@ -138,6 +140,7 @@ $('#sample-select').addEventListener('change', async e => {
 $('#ai-toggle').addEventListener('change', e => {
   if (e.target.checked && !state.captioner) {
     state.captioner = createCaptioner({
+      proxy: state.server,
       onStatus: s => { if (state.running) status(s, 'busy'); },
     });
   }
@@ -154,6 +157,7 @@ async function analyze() {
   try {
     const result = await run(state.source, {
       baseUrl: state.baseUrl,
+      cssProxy: state.server,
       overrides: state.overrides,
       captioner: $('#ai-toggle').checked ? state.captioner : null,
       onProgress: msg => status(msg + '…', 'busy'),
@@ -162,7 +166,8 @@ async function analyze() {
     state.pending = {};
     renderResults();
     const b = result.before.summary, a = result.after.summary;
-    status(`Done in ${(result.ms / 1000).toFixed(1)} s: ${plural(b.instances, 'issue')} found, ${a.instances === 1 ? "1 issue remains" : `${a.instances} issues remain`}.`);
+    const left = a.instances - result.fixes.filter(f => f.status === 'suggested').length;
+    status(`Done in ${(result.ms / 1000).toFixed(1)} s: ${plural(b.instances, 'issue')} found, ${left === 1 ? '1 issue remains' : `${left} issues remain`}.`);
     $('.input-panel').classList.add('compact');
     $('#empty').hidden = true;
   } catch (err) {
@@ -184,12 +189,13 @@ function renderResults() {
   const input = r.fixes.filter(f => f.status === 'needs-input');
   const suggested = r.fixes.filter(f => f.status === 'suggested');
   const b = r.before.summary, a = r.after.summary;
-  const pct = b.instances ? Math.round(100 * (b.instances - a.instances) / b.instances) : 0;
+  const left = a.instances - suggested.length;
+  const pct = b.instances ? Math.round(100 * (b.instances - left) / b.instances) : 0;
   $('#summary').innerHTML = `
-    <div class="metric ${a.instances === 0 ? 'good' : ''}">
+    <div class="metric ${left === 0 ? 'good' : ''}">
       <div class="label">Issues</div>
-      <div class="value"><span class="from">${b.instances} →</span> ${a.instances}</div>
-      <div class="sub">${b.instances ? `${pct}% resolved · ` : ''}${a.wcagInstances} WCAG A/AA left${suggested.length ? ` · ${suggested.length} optional` : ''}</div>
+      <div class="value"><span class="from">${b.instances} →</span> ${left}</div>
+      <div class="sub">${b.instances ? `${pct}% resolved · ` : ''}${a.wcagInstances - suggested.length} WCAG A/AA left${suggested.length ? ` · +${suggested.length} optional` : ''}</div>
     </div>
     <div class="metric">
       <div class="label">Fixes applied</div>
@@ -355,7 +361,10 @@ function renderDiff() {
   const r = state.result;
   const panel = $('#rp-diff');
   if (r.normalized === r.output) { panel.innerHTML = '<p>No changes were made to the code.</p>'; return; }
-  const parts = Diff.diffLines(r.normalized, r.output);
+  // Minified pages: break long lines at tag boundaries for display (the output file is unchanged).
+  const long = s => s.split('\n').some(l => l.length > 400);
+  const view = s => (long(r.normalized) ? s.replace(/></g, '>\n<') : s);
+  const parts = Diff.diffLines(view(r.normalized), view(r.output));
   const rows = [];
   let o = 1, n = 1;
   const lines = s => s.replace(/\n$/, '').split('\n');
@@ -536,6 +545,17 @@ function markdownReport(r) {
   });
   if (location.hash === '#receive') status('Waiting for the page from your other tab…', 'busy');
 }
+
+// ---------- local server or static site? ----------
+fetch('api/health').then(r => (r.ok ? r.json() : null)).catch(() => null).then(h => {
+  state.server = h?.ok ? new URL('./', location.href).href : null;
+  if (!state.server) {
+    $('#render-js').closest('label').hidden = true;
+    $('#url-form').querySelector('button').disabled = true;
+    $('#url-input').disabled = true;
+    $('#url-form').insertAdjacentHTML('afterend', '<p class="hint"><strong>Online demo:</strong> fetching by URL runs in the local app (<code>npm start</code>). Here, use the bookmarklet below — it sends any page you have open, even behind a login.</p>');
+  }
+});
 
 // Expose the engine for the CLI / evaluation harness (same code path as the UI).
 window.PasteProof = { run, isFragment };
