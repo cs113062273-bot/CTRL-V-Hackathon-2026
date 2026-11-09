@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PasteProof — accessible HTML, verified</title>
+  <meta name="description" content="Paste inaccessible HTML and get source-level WCAG fixes, each one verified by re-running axe-core.">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip" href="#workspace">Skip to workspace</a>
+  <header class="topbar">
+    <div class="brand">
+      <svg aria-hidden="true" width="28" height="28" viewBox="0 0 32 32"><rect x="3" y="5" width="20" height="24" rx="3" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M9 3h8v5H9z" fill="currentColor"/><path d="m16 20 4 4 9-10" fill="none" stroke="var(--ok)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span class="brand-name">PasteProof</span>
+    </div>
+    <p class="tagline">Paste HTML. Get accessible code back — every fix re-checked by axe-core.</p>
+    <label class="ai-toggle" title="Generates image descriptions with Florence-2 running in your browser. Nothing is uploaded.">
+      <input type="checkbox" id="ai-toggle">
+      <span>On-device AI alt text</span>
+    </label>
+  </header>
+
+  <main id="workspace" tabindex="-1">
+    <section class="input-panel" aria-labelledby="input-heading">
+      <div class="input-head">
+        <h1 id="input-heading">Check &amp; fix a page or component</h1>
+        <div class="source-tabs" role="tablist" aria-label="Input method">
+          <button role="tab" id="tab-paste" aria-controls="pane-paste" aria-selected="true">Paste HTML</button>
+          <button role="tab" id="tab-url" aria-controls="pane-url" aria-selected="false" tabindex="-1">From URL</button>
+          <button role="tab" id="tab-file" aria-controls="pane-file" aria-selected="false" tabindex="-1">Upload file</button>
+        </div>
+      </div>
+
+      <div id="pane-paste" role="tabpanel" aria-labelledby="tab-paste" class="pane">
+        <label for="source" class="sr-only">HTML source</label>
+        <textarea id="source" spellcheck="false" autocomplete="off" placeholder="Paste a full page or a single component here — or just press Ctrl+V anywhere on this page."></textarea>
+      </div>
+      <div id="pane-url" role="tabpanel" aria-labelledby="tab-url" class="pane" hidden>
+        <form id="url-form" class="url-row">
+          <label for="url-input">Page address</label>
+          <input id="url-input" type="url" inputmode="url" placeholder="https://example.org/apply" required>
+          <button type="submit" class="btn">Fetch page</button>
+        </form>
+        <label class="check"><input type="checkbox" id="render-js" checked> Run the page's JavaScript first (for sites built with React, Vue, etc.)</label>
+        <p class="hint">Fetched by your local PasteProof server in a headless browser; private network addresses are blocked. The audit itself never runs the page's scripts.</p>
+        <div class="bookmarklet">
+          <p><strong>Page behind a login?</strong> Drag this button to your bookmarks bar, open the page while signed in, then click the bookmark. The page as you see it is sent to this tab — nothing goes to any server.</p>
+          <a class="btn btn-secondary" id="bookmarklet" href="#">Send to PasteProof</a>
+        </div>
+      </div>
+      <div id="pane-file" role="tabpanel" aria-labelledby="tab-file" class="pane" hidden>
+        <div class="dropzone" id="dropzone">
+          <p>Drop an <code>.html</code> file here, or</p>
+          <label class="btn btn-secondary" for="file-input">Choose file</label>
+          <input id="file-input" type="file" accept=".html,.htm,.xhtml,.txt,text/html" class="sr-only">
+        </div>
+      </div>
+
+      <div class="actions">
+        <button id="run-btn" class="btn btn-primary" type="button">Check &amp; fix</button>
+        <div class="sample-picker">
+          <label for="sample-select">Or try a sample</label>
+          <select id="sample-select">
+            <option value="">Choose a sample…</option>
+            <option value="clinic-booking.html">Community clinic — appointment form</option>
+            <option value="benefits-application.html">Benefits application — household step</option>
+            <option value="school-portal.html">School portal — parent dashboard</option>
+            <option value="transit-widget.html">Transit trip planner (component)</option>
+          </select>
+        </div>
+        <span class="source-label" id="source-label"></span>
+      </div>
+      <p id="status" class="status" role="status" aria-live="polite"></p>
+    </section>
+
+    <section id="results" class="results" aria-labelledby="results-heading" hidden>
+      <h2 id="results-heading" class="sr-only">Results</h2>
+      <div class="summary" id="summary"></div>
+
+      <div class="result-tabs" role="tablist" aria-label="Result views">
+        <button role="tab" id="rt-fixes" aria-controls="rp-fixes" aria-selected="true">Fixes</button>
+        <button role="tab" id="rt-diff" aria-controls="rp-diff" aria-selected="false" tabindex="-1">Code diff</button>
+        <button role="tab" id="rt-sr" aria-controls="rp-sr" aria-selected="false" tabindex="-1">Screen reader</button>
+        <button role="tab" id="rt-preview" aria-controls="rp-preview" aria-selected="false" tabindex="-1">Preview</button>
+        <button role="tab" id="rt-remaining" aria-controls="rp-remaining" aria-selected="false" tabindex="-1">Remaining</button>
+      </div>
+      <div id="rp-fixes" role="tabpanel" aria-labelledby="rt-fixes" class="rpanel" tabindex="0"></div>
+      <div id="rp-diff" role="tabpanel" aria-labelledby="rt-diff" class="rpanel" tabindex="0" hidden></div>
+      <div id="rp-sr" role="tabpanel" aria-labelledby="rt-sr" class="rpanel" tabindex="0" hidden></div>
+      <div id="rp-preview" role="tabpanel" aria-labelledby="rt-preview" class="rpanel" tabindex="0" hidden></div>
+      <div id="rp-remaining" role="tabpanel" aria-labelledby="rt-remaining" class="rpanel" tabindex="0" hidden></div>
+    </section>
+
+    <section class="empty" id="empty">
+      <h2>What it does</h2>
+      <ol class="steps">
+        <li><strong>Audits</strong> the rendered page with axe-core (WCAG 2.2 A/AA) plus checks axe misses: mouse-only click handlers, vague link text, missing input purpose, asterisk-only required fields.</li>
+        <li><strong>Repairs the source</strong> — labels, alt text, names, contrast colours with the same hue, landmarks, skip links, ARIA mistakes. No overlay script; the fixes live in your HTML.</li>
+        <li><strong>Re-audits</strong> the fixed code and marks every change as verified or not. Guesses are flagged for your review and can be edited or rejected.</li>
+      </ol>
+    </section>
+  </main>
+
+  <div class="pending-bar" id="pending-bar" hidden>
+    <span id="pending-text"></span>
+    <button class="btn btn-primary" id="rerun-btn" type="button">Re-run with my changes</button>
+    <button class="btn btn-ghost" id="discard-btn" type="button">Discard</button>
+  </div>
+
+  <script src="/vendor/diff.min.js"></script>
+  <script type="module" src="app.js"></script>
+</body>
+</html>

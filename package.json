@@ -1,0 +1,24 @@
+{
+  "name": "pasteproof",
+  "version": "1.0.0",
+  "description": "Paste inaccessible HTML, get verified WCAG fixes at the source.",
+  "type": "module",
+  "license": "MIT",
+  "bin": {
+    "pasteproof": "cli.js"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "fix": "node cli.js",
+    "eval": "node eval/run.js",
+    "test": "node --test test/engine.test.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "axe-core": "^4.14.0",
+    "diff": "^9.0.0",
+    "puppeteer-core": "^25.16.0"
+  }
+}

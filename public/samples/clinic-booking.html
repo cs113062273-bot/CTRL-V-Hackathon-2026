@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<style>
+  body { font-family: Arial, sans-serif; margin: 0; color: #333; background: #fafafa; }
+  .header { background: #fff; border-bottom: 1px solid #eee; padding: 12px 24px; display: flex; align-items: center; gap: 16px; }
+  .header img { height: 36px; }
+  .menu a { color: #8fa3b0; margin-right: 14px; text-decoration: none; font-size: 14px; }
+  .hero { display: flex; gap: 24px; padding: 24px; align-items: center; }
+  .hero img { width: 320px; border-radius: 8px; }
+  .hero p { color: #999; }
+  .title { font-size: 28px; font-weight: bold; margin: 0 0 8px; }
+  .card { background: #fff; margin: 0 24px 24px; padding: 20px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,.1); }
+  .row { margin-bottom: 14px; }
+  .row span { display: block; font-size: 13px; color: #888; margin-bottom: 4px; }
+  input, select, textarea { padding: 8px; border: 1px solid #ccc; border-radius: 4px; width: 280px; }
+  .btn { background: #4da3ff; color: #fff; padding: 12px 24px; border-radius: 6px; display: inline-block; cursor: pointer; }
+  .icons a { display: inline-block; width: 24px; height: 24px; margin-right: 8px; }
+  .footer { padding: 16px 24px; font-size: 12px; color: #aaa; }
+  .notice { color: #e0a800; }
+</style>
+</head>
+<body>
+<div class="header">
+  <img src="img/logo.svg">
+  <div class="menu">
+    <a href="/services">Services</a>
+    <a href="/locations">Locations</a>
+    <a href="/insurance">Insurance &amp; costs</a>
+    <a href="/es/">Español</a>
+  </div>
+  <a href="/search" class="icon-search"><svg width="20" height="20" viewBox="0 0 20 20"><circle cx="8" cy="8" r="6" stroke="#555" fill="none" stroke-width="2"/><path d="M13 13l5 5" stroke="#555" stroke-width="2"/></svg></a>
+</div>
+
+<div class="hero">
+  <img src="img/IMG_2041.jpg">
+  <div>
+    <div class="title">Book a free health check-up</div>
+    <p>Walk-in and same-week appointments for adults and children. No insurance needed — fees are based on household income.</p>
+    <a href="/sliding-scale">Click here</a> to see if you qualify for free care.
+  </div>
+</div>
+
+<div class="card">
+  <h3>Your details</h3>
+  <p class="notice">Fields marked * are required</p>
+  <div class="row"><span>First name *</span><input type="text" name="fname"></div>
+  <div class="row"><span>Last name *</span><input type="text" name="lname"></div>
+  <div class="row"><span>Date of birth *</span><input type="text" name="dob" placeholder="MM/DD/YYYY"></div>
+  <div class="row"><span>Phone number *</span><input type="tel" name="phone"></div>
+  <div class="row"><span>Email</span><input type="email" name="email"></div>
+  <div class="row"><span>Preferred language</span>
+    <select name="lang"><option>English</option><option>Español</option><option>Tiếng Việt</option><option>中文</option></select>
+  </div>
+  <div class="row"><span>Reason for visit</span><textarea name="reason" rows="3"></textarea></div>
+  <div class="row">
+    <input type="checkbox" name="interpreter" style="width:auto"> I need an interpreter
+  </div>
+  <div class="btn" onclick="submitBooking()">Book appointment</div>
+</div>
+
+<div class="card">
+  <h3>Find us</h3>
+  <iframe src="https://www.google.com/maps/embed?pb=clinic" width="400" height="200" style="border:0"></iframe>
+</div>
+
+<div class="footer">
+  <div class="icons">
+    <a href="https://facebook.com/clinic"><i class="fa fa-facebook"></i></a>
+    <a href="https://twitter.com/clinic"><i class="fa fa-twitter"></i></a>
+  </div>
+  © 2026 Eastside Community Health Center · <a href="/privacy" style="color:#bbb">Privacy</a>
+</div>
+<script>function submitBooking(){ alert('Booked'); }</script>
+</body>
+</html>
