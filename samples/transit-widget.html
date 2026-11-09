@@ -1,0 +1,26 @@
+<style>
+  .tp { font-family: Helvetica, Arial, sans-serif; border: 1px solid #ddd; border-radius: 12px; padding: 16px; width: 360px; background: #fff; }
+  .tp .hdr { font-size: 18px; font-weight: 700; color: #1d3557; margin-bottom: 12px; }
+  .tp input { width: 100%; padding: 10px; margin-bottom: 8px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
+  .tp .swap { float: right; background: none; border: 0; cursor: pointer; }
+  .tp .when { color: #9aa5b1; font-size: 13px; }
+  .tp .go { background: #e63946; color: #fff; border: 0; border-radius: 6px; width: 100%; padding: 12px; font-size: 16px; margin-top: 8px; }
+  .tp .opt { display: inline-flex; gap: 6px; align-items: center; color: #8d99ae; font-size: 13px; margin-right: 12px; }
+  .tp .tab { display: inline-block; padding: 6px 10px; color: #a8b2bd; cursor: pointer; }
+  .tp .tab.on { color: #1d3557; border-bottom: 2px solid #1d3557; }
+</style>
+<div class="tp">
+  <div class="hdr">Plan a trip</div>
+  <div class="tabs">
+    <span class="tab on" onclick="mode('depart')">Leave now</span>
+    <span class="tab" onclick="mode('arrive')">Arrive by</span>
+  </div>
+  <button class="swap"><i class="fa fa-exchange-alt"></i></button>
+  <input type="text" placeholder="From" id="from">
+  <input type="text" id="to">
+  <div class="when">Departing 8:15 am · <a href="#">change</a></div>
+  <label class="opt"><input type="checkbox" id="stepfree" style="width:auto;margin:0"> Step-free access</label>
+  <label class="opt"><input type="checkbox" style="width:auto;margin:0"> Fewer transfers</label>
+  <button class="go" onclick="plan()"></button>
+  <a href="/alerts"><img src="img/alert-icon.png"></a>
+</div>

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="english">
+<head>
+<meta charset="utf-8">
+<title>Apply</title>
+<style>
+  body { font: 14px Verdana, sans-serif; margin: 0; background: #fff; color: #444; }
+  #top { background: #2b4c7e; color: #fff; padding: 10px 20px; }
+  #top a { color: #9db4d9; }
+  .steps { padding: 10px 20px; background: #f3f3f3; color: #aaa; font-size: 12px; }
+  .steps b { color: #2b4c7e; }
+  #content { padding: 20px; max-width: 760px; }
+  .lbl { color: #777; font-size: 12px; }
+  table td { padding: 6px 8px; }
+  .help { color: #bbb; font-size: 11px; }
+  .next { background: #f0ad4e; color: #fff; border: 0; padding: 10px 26px; font-size: 15px; border-radius: 3px; }
+  .err { color: #ff6b6b; font-size: 12px; }
+  marquee { color: #c00; }
+</style>
+</head>
+<body>
+<div id="top">
+  <span style="font-size:20px;font-weight:bold">State Food &amp; Cash Assistance</span>
+  &nbsp; <a href="/help">Help</a> | <a href="/logout">Log out</a>
+  <a href="/translate" class="globe-icon"><img src="img/globe.svg" width="16" height="16"></a>
+</div>
+<div class="steps">Step 1 Applicant › <b>Step 2 Household</b> › Step 3 Income › Step 4 Expenses › Step 5 Review</div>
+<div id="content">
+  <marquee>Interviews are now available by phone. Call 1-800-555-0199.</marquee>
+  <h1>Who lives with you?</h1>
+  <p>List everyone who lives in your home, even if they do not buy or make food with you. <a href="/who-to-include.pdf">More</a></p>
+
+  <h4>Household member 1</h4>
+  <table>
+    <tr><td class="lbl">Full name*</td><td><input type="text" name="member1_name" id="name"></td></tr>
+    <tr><td class="lbl">Relationship to you*</td><td>
+      <select name="member1_rel" id="rel"><option></option><option>Spouse</option><option>Child</option><option>Parent</option><option>Other</option></select></td></tr>
+    <tr><td class="lbl">Date of birth*</td><td><input type="text" name="member1_dob" id="dob"></td></tr>
+    <tr><td class="lbl">Social Security number</td><td><input type="text" name="member1_ssn"> <span class="help">Optional for members not applying</span></td></tr>
+    <tr><td class="lbl">Buys and makes food with you?</td><td>
+      <input type="radio" name="member1_food" value="yes"> Yes
+      <input type="radio" name="member1_food" value="no"> No</td></tr>
+  </table>
+
+  <h4>Household member 2</h4>
+  <table>
+    <tr><td class="lbl">Full name*</td><td><input type="text" name="member2_name" id="name"></td></tr>
+    <tr><td class="lbl">Relationship to you*</td><td>
+      <select name="member2_rel" id="rel"><option></option><option>Spouse</option><option>Child</option><option>Parent</option><option>Other</option></select></td></tr>
+    <tr><td class="lbl">Date of birth*</td><td><input type="text" name="member2_dob" id="dob"></td></tr>
+  </table>
+  <p class="err" aria-hidden="yes">Please check the highlighted fields.</p>
+
+  <p><a href="#" onclick="addMember()">+ Add another person</a></p>
+  <p>
+    <span class="btn-back" onclick="history.back()" style="color:#2b4c7e;cursor:pointer">‹ Back</span>
+    <button class="next" tabindex="1">Save and continue</button>
+  </p>
+  <p class="help">Need help? <a href="/office-locator">Click here</a> to find an office, or call 1-800-555-0199.</p>
+</div>
+<div class="footer" style="padding:20px;color:#bbb;font-size:11px">Department of Human Services · This institution is an equal opportunity provider. <a href="/nondiscrimination" style="color:#ccc">Read more</a></div>
+</body>
+</html>
