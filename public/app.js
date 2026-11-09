@@ -79,7 +79,8 @@ $('#source').addEventListener('keydown', e => {
 
 document.addEventListener('paste', e => {
   const t = e.target;
-  if (t.closest && t.closest('input, textarea, [contenteditable]')) {
+  // Only real text fields keep their own paste; a focused checkbox, button or select must not block Ctrl+V.
+  if (t.closest && t.closest('textarea, [contenteditable], input:not([type=checkbox]):not([type=radio]):not([type=button]):not([type=submit]):not([type=file]):not([type=color])')) {
     // Pasting into the empty editor also runs immediately: Ctrl+V is the whole workflow.
     if (t.id === 'source' && !t.value.trim()) setTimeout(() => { setSource(t.value, { label: 'Pasted HTML' }); analyze(); }, 0);
     return;
@@ -143,6 +144,7 @@ $('#ai-toggle').addEventListener('change', e => {
       proxy: state.server,
       onStatus: s => { if (state.running) status(s, 'busy'); },
     });
+    window.__aiReady = state.captioner.ready; // lets tests and demos wait for the model
   }
   if (state.result) status('Alt-text model ' + (e.target.checked ? 'enabled' : 'disabled') + '. Run the check again to use it.');
 });

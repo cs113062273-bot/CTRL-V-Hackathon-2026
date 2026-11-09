@@ -5,8 +5,12 @@ export function createCaptioner({ onStatus = () => {}, proxy = null } = {}) {
   const pending = new Map();
   const cache = new Map();
   let seq = 0;
+  let markReady;
+  const ready = new Promise(r => { markReady = r; });
   worker.onmessage = ({ data: m }) => {
     if (m.type === 'status') return onStatus(m.text);
+    if (m.type === 'ready') return markReady(true);
+    if (m.type === 'warmup-error') return markReady(false);
     const p = pending.get(m.id);
     if (!p) return;
     pending.delete(m.id);
@@ -16,7 +20,8 @@ export function createCaptioner({ onStatus = () => {}, proxy = null } = {}) {
     for (const p of pending.values()) p.reject(new Error(e.message || 'Caption worker crashed'));
     pending.clear();
   };
-  return function caption(url) {
+  worker.postMessage({ type: 'warmup' }); // start loading the model as soon as the feature is switched on
+  const caption = function caption(url) {
     if (cache.has(url)) return cache.get(url);
     const fetchUrl = proxy && /^https?:/i.test(url) && new URL(url).origin !== location.origin ? new URL('api/image?url=' + encodeURIComponent(url), proxy).href : url;
     const promise = new Promise((resolve, reject) => {
@@ -28,4 +33,6 @@ export function createCaptioner({ onStatus = () => {}, proxy = null } = {}) {
     promise.catch(() => cache.delete(url));
     return promise;
   };
+  caption.ready = ready;
+  return caption;
 }

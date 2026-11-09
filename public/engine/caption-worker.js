@@ -47,6 +47,10 @@ function clean(text) {
 }
 
 self.onmessage = async ({ data }) => {
+  if (data.type === 'warmup') {
+    load().then(() => self.postMessage({ type: 'ready' }), e => self.postMessage({ type: 'warmup-error', message: e.message || String(e) }));
+    return;
+  }
   if (data.type !== 'caption') return;
   try {
     const { model, processor } = await load();
