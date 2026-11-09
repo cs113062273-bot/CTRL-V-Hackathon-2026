@@ -4,6 +4,8 @@
 
 ![PasteProof fixing a clinic booking page: 52 issues to 0, 49 fixes verified](docs/screenshot.png)
 
+**Live demo:** https://cs113062273-bot.github.io/CTRL-V-Hackathon-2026/ — runs entirely in your browser (paste, upload, samples, on-device AI). Fetching a URL needs the local app (`npm start`).
+
 PasteProof audits a web page or component with [axe-core](https://github.com/dequelabs/axe-core) (WCAG 2.2 A/AA + best practices) plus its own checks, repairs the **source HTML and CSS**, then re-renders and re-audits the result. Every change is marked *verified* or *still failing*, and layout and text are measured to be unchanged. Guesses go to a review queue where you accept, edit, or reject them.
 
 It is not an overlay: nothing is injected at runtime. You get plain HTML, a diff, a CSS patch for your stylesheets, and a report.

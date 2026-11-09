@@ -21,7 +21,7 @@ All numbers below come from `npm run eval` (raw data in `eval/results.json`) and
 
 | Page | Before | After (excl. optional) | Optional target-size | Fixes (verified) | Review | Input | Layout kept |
 |---|---:|---:|---:|---:|---:|---:|---:|
-| sample/clinic-booking | 52 | 1 | 0 | 48 (48) | 19 | 1 | 100% |
+| sample/clinic-booking | 52 | 1 | 0 | 48 (48) | 18 | 1 | 100% |
 | sample/benefits-application | 62 | 0 | 0 | 51 (51) | 21 | 0 | 100% |
 | sample/school-portal | 35 | 1 | 0 | 25 (25) | 8 | 1 | 100% |
 | sample/transit-widget | 13 | 0 | 2 | 10 (10) | 6 | 0 | 100% |
@@ -42,7 +42,7 @@ All numbers below come from `npm run eval` (raw data in `eval/results.json`) and
 | healthcare.gov | 4 | 0 | 0 | 4 (4) | 3 | 0 | 100% |
 | lib.berkeley.edu | 1 | 0 | 0 | 1 (1) | 0 | 0 | 100% |
 | feedingamerica.org | 6 | 0 | 0 | 4 (4) | 4 | 0 | 100% |
-| **Total** | **1604** | **15** | **683** | **781 (781)** | **208 (27%)** | **13** | |
+| **Total** | **1604** | **15** | **683** | **781 (781)** | **207 (27%)** | **13** | |
 
 \* gov.tw's image server refused 39 hotlinked images inside the headless render. The alt text then rendered in their place, which moves elements in the measurement but not for a real visitor whose images load. **On every page where all images loaded, layout was 100% unchanged.**
 
