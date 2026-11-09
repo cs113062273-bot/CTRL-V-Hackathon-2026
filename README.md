@@ -2,107 +2,103 @@
 
 **Paste inaccessible HTML. Get accessible code back. Every fix is re-checked.**
 
-**Live demo:** https://cs113062273-bot.github.io/pasteproof/ (runs fully in your browser; URL fetching needs the local app). Submission materials: [`submission/`](submission/).
+![PasteProof fixing a clinic booking page: 52 issues to 0, 49 fixes verified](docs/screenshot.png)
 
-PasteProof audits a web page or component with [axe-core](https://github.com/dequelabs/axe-core) (WCAG 2.2 A/AA plus best practices) and its own extra checks. It repairs the **source HTML and CSS**, then re-renders the result and audits it again. Each change is labelled *verified* or *still failing*. It also measures that the page layout and text did not change. Fixes it is unsure about wait in a review queue, where you can accept, edit, or reject each one.
+PasteProof audits a web page or component with [axe-core](https://github.com/dequelabs/axe-core) (WCAG 2.2 A/AA + best practices) plus its own checks, repairs the **source HTML and CSS**, then re-renders and re-audits the result. Every change is marked *verified* or *still failing*, and layout and text are measured to be unchanged. Guesses go to a review queue where you accept, edit, or reject them.
 
-It is not an overlay. Nothing is injected into your site at runtime. You get a normal HTML file, a diff, a CSS patch for your stylesheet files, and a report.
+It is not an overlay: nothing is injected at runtime. You get plain HTML, a diff, a CSS patch for your stylesheets, and a report.
 
-## Why
+## Who it helps
 
-- 94.8% of the top million home pages have detectable WCAG failures. The most common are low-contrast text, missing alt text, missing form labels, and empty links and buttons ([WebAIM Million 2025](https://webaim.org/projects/million/2025)).
-- Checkers (axe, WAVE, Lighthouse) *find* these problems but leave the fixing to developers. Overlays claim to fix them at runtime. The FTC ordered accessiBe to pay $1M for overstating such claims ([TechCrunch, Jan 2025](https://techcrunch.com/2025/01/03/ftc-orders-ai-accessibility-startup-accessibe-to-pay-1m-for-misleading-advertising); finalised April 2025).
-- The people blocked are applicants for benefits, clinic patients, parents on school portals, and transit riders. These are the "access to essential services" barriers this hackathon targets.
+- **Screen-reader users**: images, fields, buttons, and links get real names.
+- **Keyboard and switch users**: mouse-only controls become focusable and operable.
+- **Low-vision users**: contrast is fixed and zoom blocking is removed.
+- **Voice-control users**: spoken names match the visible labels.
+- **People with motor or memory impairments**: form fields declare `autocomplete`.
+- **Teams without an accessibility specialist**: clinics, schools, city services, and nonprofits get fixed code instead of a list of problems.
+
+94.8% of the top million home pages fail WCAG ([WebAIM Million 2025](https://webaim.org/projects/million/2025)).
 
 ## Quick start
 
-Requirements: Node 18+ and Chrome, Edge, or Chromium. There are no API keys, paid services, or GPU requirements.
+Requires Node 18+ and Chrome, Edge, or Chromium. No API keys or paid services.
 
 ```bash
 npm install
-npm start            # → http://127.0.0.1:5173
+npm start            # http://127.0.0.1:5173
 ```
 
-Ways to get a page in:
+There are four ways to get a page in:
 
-- **Ctrl+V anywhere** on the page pastes the clipboard and runs immediately.
-- **From URL**: the local server opens the page in headless Chrome so JavaScript-built sites (React, Vue, …) are captured. Every request the page makes is checked against a private-network block.
-- **Send to PasteProof bookmarklet**: for pages behind a login (benefit portals, school accounts). Drag it to your bookmarks bar and click it on the page while signed in. The live DOM goes straight to your PasteProof tab and no server is involved.
-- **Upload or drop** an `.html` file, or open one of the four realistic samples.
+- **Ctrl+V anywhere** on the page pastes and runs.
+- **From URL** renders the page in headless Chrome, so JavaScript-built sites work. Private network addresses are blocked.
+- The **Send to PasteProof** bookmarklet sends any open page, including pages behind a login.
+- **Upload or drop** an `.html` file, or pick one of the four samples.
 
-Optional: tick **On-device AI alt text** to describe images that have no other clues, using Florence-2 running in your browser (Transformers.js, WebGPU or WASM). The model downloads once (about 275–360 MB) and is cached. Images never leave your machine.
+**On-device AI alt text** (optional) runs Florence-2 in the browser through Transformers.js. The model is a one-time download of about 300 MB, and images never leave your machine.
 
-## What you get
+## Views
 
 | View | Purpose |
 |---|---|
-| **Fixes** | Every change with its WCAG criterion, impact, confidence, and reason. Groups: *Needs your input* → *Review these guesses* → *Applied automatically* → *Optional (may change layout)*. Edit any text or colour, reject or apply a fix, then **Re-run with my changes**. Accept all and Apply all are available. |
-| **Code diff** | Line and word diff of the HTML, plus a **CSS patch** for external stylesheets (file → selector → old and new value). |
-| **Screen reader** | What a screen reader announces from top to bottom, before and after, using axe-core's role and name computation. Unnamed controls and images read out by file name are shown in red. |
-| **Preview** | The original and fixed versions side by side, with scripts disabled. |
-| **Remaining** | Issues still failing, plus items axe-core could not decide (for example, text over images). |
-| **Export** | Fixed HTML (download or copy), a Markdown report, a JSON report, and the CSS patch. |
+| **Fixes** | Each change with its WCAG criterion, impact, confidence, and reason. Groups: *Needs input* → *Review* → *Applied* → *Optional*. Edit, reject, or apply, then re-run. |
+| **Code diff** | HTML diff plus a CSS patch for external stylesheets. |
+| **Screen reader** | What a screen reader announces, before and after. |
+| **Preview** | Original and fixed pages side by side. |
+| **Remaining** | Issues still failing and items that need a human check. |
+| **Export** | Fixed HTML, Markdown report, JSON report, and CSS patch. |
 
 ## What it repairs
 
-| Area | Repair | Decided by |
-|---|---|---|
-| Contrast (1.4.3) | Smallest same-hue change that reaches the ratio. It edits the `<style>` rule that sets the colour, following inheritance up the tree; for external CSS it adds one equally specific override and writes a patch for the file. Each choice is verified in the CSSOM, with inline styles only as a last resort. | Deterministic |
-| Images (1.1.1) | Text read from inside SVG files (logos), decorative detection (spacers, layout slices, repeated bullets, furniture file names), alt text that repeats nearby text removed, linked images named by their destination, captions, titles, on-device AI captions, meaningful file names. Otherwise it asks you. | Heuristic or AI, flagged for review |
-| Form labels (1.3.1, 4.1.2, 3.3.2) | Connects the visible neighbouring label (sibling, table cell, wrapping text) via `aria-labelledby`/`for`, replaces placeholder-only labels, and marks asterisk-only required fields. It never wraps text in new elements, because new elements can match your CSS. | Heuristic |
-| Names (4.1.2, 2.4.4, 2.5.3) | Icon classes (`fa-search` → "Search"), SVG titles, link destinations, logo links, click-handler names. It fixes names that don't contain the visible text and hides icons inside already-labelled controls. | Heuristic |
-| Keyboard (2.1.1) | `<div onclick>` → `role`, `tabindex`, Enter/Space handler (skipped for delegated containers that hold links) | Deterministic |
-| Structure | `lang` (detected), `<title>`, the main landmark (author-named and visible containers first, never hidden off-canvas menus), header/navigation/footer, unique landmark names, nested and duplicate landmarks, skip link, heading levels via `aria-level` (no visual change), lists | Deterministic or heuristic |
-| Other | Zoom blocking, ARIA typos and invalid values (preserving current browser behaviour), focusable content inside `aria-hidden`, positive tabindex, `<marquee>`/`<blink>` (same box), vague link text, `autocomplete` input purpose (1.3.5) | Mostly deterministic |
-| Target size (2.5.8) | Offered as an **optional** suggestion and never applied silently, because enlarging targets reflows the page | Opt-in |
+| Area | Repair |
+|---|---|
+| Contrast (1.4.3) | Smallest same-hue colour change. Edits the CSS rule that sets the colour; for external CSS, adds an override and writes a patch. Every edit is verified in the CSSOM. |
+| Images (1.1.1) | Text inside SVGs, decorative detection, redundant alt removal, link destinations, captions, AI captions. If none of these applies, it asks you. |
+| Forms (1.3.1, 3.3.2, 1.3.5) | Connects visible labels, replaces placeholder-only labels, marks required fields, adds `autocomplete`. |
+| Names (4.1.2, 2.4.4, 2.5.3) | Names from icon classes, SVG titles, link destinations, and handler names; fixes names that don't contain the visible text. |
+| Keyboard (2.1.1) | Mouse-only `onclick` elements get a role, `tabindex`, and an Enter/Space handler. |
+| Structure | `lang`, `<title>`, landmarks, unique landmark names, skip link, heading levels (no visual change), lists, ARIA errors, zoom blocking. |
+| Target size (2.5.8) | Offered as an optional suggestion, because it changes layout. |
 
-## CLI (CI-friendly)
+## CLI
 
 ```bash
 node cli.js page.html -o page.accessible.html --json report.json
-node cli.js https://example.org --fail-on serious   # exit 1 if serious/critical issues remain
+node cli.js https://example.org --fail-on serious   # non-zero exit if serious issues remain (for CI)
 ```
 
-The CLI runs exactly the same engine as the UI in headless Chrome or Edge. Set `PASTEPROOF_BROWSER` if neither is in a standard location.
-
-## Evaluate and test
-
-Static build for any free host (GitHub Pages, Cloudflare Pages): `npm run build:static` writes `dist/`.
+## Tests and evaluation
 
 ```bash
-npm run eval   # 21 pages: 4 samples, 4 W3C "BAD" demo pages (vs W3C's expert fixes), 13 real public-service sites
-npm test       # 4 tests: contrast math, image naming, human-review round trip, UI self-audit
+npm test       # contrast math, image naming, human-review round trip, UI self-audit
+npm run eval   # 21 pages incl. 13 live public-service sites and W3C's demo pages
 ```
 
-Results are in [EVALUATION.md](EVALUATION.md).
+On 21 pages, the evaluation found 1,604 issues, 15 of which remain after fixing (683 target-size suggestions are optional and not applied). All 781 applied fixes were verified, no fix introduced a new issue, and text and layout were 100% preserved. Full results are in [EVALUATION.md](EVALUATION.md).
+
+`npm run build:static` writes a static build to `dist/` for any static host. The static build has every feature except URL fetching.
 
 ## Architecture
 
 ```
-public/
-  index.html, app.js, styles.css     UI (no framework, no build step)
-  engine/pipeline.js                 audit → fix → re-render → re-audit (≤4 passes) → per-fix verification + layout check
-  engine/audit.js                    script-free, CSP-locked sandbox iframe + axe-core; screen-reader view
-  engine/fixers.js                   repairs per axe rule + PasteProof's own checks
-  engine/color.js, names.js, lang.js pure helpers
-  engine/caption-worker.js           Florence-2 in a Web Worker
-server.js                            static files; guarded fetch of pages (headless-rendered), images, stylesheets
-cli.js, lib/headless.js, lib/browser.js   same engine in headless Chrome/Edge
-eval/run.js                          evaluation harness
+public/engine/pipeline.js   audit → fix → re-render → re-audit, per-fix verification, layout check
+public/engine/audit.js      script-free, CSP-locked sandbox + axe-core; screen-reader view
+public/engine/fixers.js     repairs per rule
+public/engine/*.js          contrast math, name inference, language detection, AI worker
+public/app.js               UI (no framework, no build step)
+server.js                   static files + guarded fetch of pages, images, stylesheets
+cli.js, lib/                same engine in headless Chrome/Edge
+eval/run.js                 evaluation harness
 ```
 
-**Safety.**
-
-- Pasted or fetched HTML is audited with every script, inline handler, and `javascript:` URL removed, under a Content-Security-Policy that allows only PasteProof's own vendored axe-core.
-- The fixed output keeps your original scripts.
-- The fetch proxy and the headless renderer block private and loopback addresses for every request (`PASTEPROOF_ALLOW_PRIVATE=1` allows a local dev server) and limit size, redirects, and time.
+Pages are audited with all scripts, inline handlers, and `javascript:` URLs removed, under a CSP that only allows the bundled axe-core. Every request the fetch proxy and headless renderer make is checked against loopback and private ranges (`PASTEPROOF_ALLOW_PRIVATE=1` allows a local dev server).
 
 ## Limitations
 
-- Automated checks cover only part of WCAG. Always test with a keyboard and a screen reader.
-- Framework source (JSX, templates) is not rewritten. Copy the changes from the diff and the CSS patch.
-- One page at a time; there is no site crawl.
+- Automated checks cover only part of WCAG; also test with a keyboard and a screen reader.
+- Framework source (JSX, templates) is not rewritten; apply the diff and CSS patch by hand.
+- One page at a time.
 
-## Credits and licences
+## License
 
-axe-core (MPL-2.0), jsdiff (BSD-3-Clause), puppeteer-core (Apache-2.0), Transformers.js (Apache-2.0), Florence-2 (MIT). Sample photos are public domain from Wikimedia Commons. Third-party pages are fetched at evaluation time and not redistributed. PasteProof itself is MIT-licensed.
+MIT. Uses axe-core (MPL-2.0), jsdiff (BSD-3-Clause), puppeteer-core (Apache-2.0), Transformers.js (Apache-2.0), and Florence-2 (MIT). Sample photos are public domain (Wikimedia Commons).

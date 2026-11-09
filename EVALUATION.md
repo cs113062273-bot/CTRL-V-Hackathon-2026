@@ -94,23 +94,3 @@ The bookmarklet flow was verified end to end in headless Chrome: page A → book
 13. Name-mismatch fixer ignored `aria-hidden` visible text. Aligned with axe.
 14. `<marquee>` replacement shifted layout by 3 px. It now keeps the same box (`inline-block`, `overflow: hidden`).
 15. A field labelled "Swap" from a nearby icon. That fallback was removed.
-
-## Product quality score (internal gate)
-
-| Category | Weight | Score | Evidence and deductions |
-|---|---:|---:|---|
-| Real-world problem solving | 25 | 23 | 1604 → 15 across 21 pages, including 13 live public-service sites; text and layout preserved; concrete barriers removed on real sites. −2: automated checks cover only part of WCAG; no study with assistive-tech users. |
-| Functional completeness and depth | 20 | 19 | Ctrl+V / file / URL with JS rendering / logged-in pages via bookmarklet / CLI; about 55 repair types; external-CSS patch; review, edit, reject, and opt-in loop; 4 export formats; local AI. −1: framework source (JSX/templates) not rewritten; no site crawl. |
-| Competitive differentiation | 20 | 19 | No checker, overlay, or LLM assistant combines source-level fixes, per-fix re-audit, measured layout and text preservation, stylesheet patches, and local AI. −1: individual heuristics are not unique. |
-| Technical reliability and correctness | 15 | 14 | 781/781 verified, 0 new rule types, 100% layout where images load; 15 defects found on real output and fixed. −1: 27% of fixes still need human review. |
-| Usability and UI/UX | 10 | 9 | Ctrl+V is the whole workflow; Accept all and Apply all; UI is axe-clean (automated test), responsive, light and dark. −1: no testing with real users. |
-| Performance, robustness, maintainability | 10 | 9 | About 2 s per page; CSP sandbox; private-network guard on every fetch and on headless-browser requests; dependency-light, no build; 4 meaningful tests. −1: large one-time AI download; needs a local Chrome or Edge. |
-| **Total** | 100 | **93** | |
-
-**93/100.** The remaining 7 points need things this build cannot provide within the time and constraints:
-
-1. A study with screen-reader and keyboard users.
-2. Rewriting framework source files (JSX, templates).
-3. Reducing human review further, which would need stronger AI confirmation of "decorative or meaningful" without a paid model.
-
-None of these is hidden: the UI states what it could not do, and the evaluation reports every leftover.

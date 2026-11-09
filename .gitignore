@@ -1,5 +1,11 @@
 node_modules/
+dist/
 eval/.cache/
 *.accessible.html
-dist/
+
+# Local working notes (not part of the product)
 prompt.md
+RESEARCH.md
+STRATEGY.md
+PROGRESS.md
+submission/
